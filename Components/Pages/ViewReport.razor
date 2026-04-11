@@ -1,0 +1,56 @@
+@page "/view-report"
+@using CSE325_Team10_SimpleFinanceTracker.Models
+@using CSE325_Team10_SimpleFinanceTracker.Services
+@inject TransactionService TransactionService
+
+<h3>View Report</h3>
+
+@if (!TransactionService.Transactions.Any())
+{
+    <p>No transactions available.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Total Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Income</td>
+                <td>@IncomeTotal.ToString("C")</td>
+            </tr>
+            <tr>
+                <td>Expense</td>
+                <td>@ExpenseTotal.ToString("C")</td>
+            </tr>
+            <tr>
+                <td><strong>Total Balance</strong></td>
+                <td>@TotalBalance.ToString("C")</td>
+            </tr>
+        </tbody>
+    </table>
+}
+
+@code {
+    private decimal IncomeTotal = 0;
+    private decimal ExpenseTotal = 0;
+    private decimal TotalBalance = 0;
+
+    protected override void OnInitialized()
+    {
+        // Calculate totals
+        IncomeTotal = TransactionService.Transactions
+            .Where(t => t.Category == "Income")
+            .Sum(t => t.Amount);
+
+        ExpenseTotal = TransactionService.Transactions
+            .Where(t => t.Category == "Expense")
+            .Sum(t => t.Amount);
+
+        TotalBalance = IncomeTotal - ExpenseTotal;
+    }
+}

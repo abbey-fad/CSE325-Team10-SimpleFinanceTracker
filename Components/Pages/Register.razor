@@ -1,0 +1,69 @@
+@page "/register"
+@using CSE325_Team10_SimpleFinanceTracker.Models
+@using CSE325_Team10_SimpleFinanceTracker.Services
+@inject UserService UserService
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+
+<h3>Register</h3>
+
+<EditForm Model="newUser" OnValidSubmit="RegisterUser">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-2">
+        <label>Username:</label>
+        <InputText @bind-Value="newUser.Username" class="form-control" />
+        <ValidationMessage For="@(() => newUser.Username)" />
+    </div>
+
+    <div class="mb-2">
+        <label>Email:</label>
+        <InputText @bind-Value="newUser.Email" class="form-control" />
+        <ValidationMessage For="@(() => newUser.Email)" />
+    </div>
+
+    <div class="mb-2">
+        <label>Password:</label>
+        <InputText @bind-Value="newUser.Password" type="@PasswordInputType" class="form-control" />
+        <ValidationMessage For="@(() => newUser.Password)" />
+    </div>
+
+    <div class="mb-2">
+        <InputCheckbox @bind-Value="ShowPassword" /> Show Password
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-2">Register</button>
+</EditForm>
+
+@if (!string.IsNullOrEmpty(Message))
+{
+    <p>@Message</p>
+}
+
+@code {
+    private User newUser = new User();
+    private string Message = "";
+    private bool ShowPassword = false;
+
+    // Toggle password visibility
+    private string PasswordInputType => ShowPassword ? "text" : "password";
+
+    private void RegisterUser()
+    {
+        bool success = UserService.Register(newUser);
+
+        if (success)
+        {
+            Message = "Registration successful! Redirecting to login...";
+            newUser = new User(); // reset form
+
+            // Redirect to login page
+            NavigationManager.NavigateTo("/login");
+        }
+        else
+        {
+            Message = "Email already registered.";
+        }
+    }
+}

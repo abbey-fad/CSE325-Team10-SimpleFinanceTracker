@@ -1,0 +1,175 @@
+@page "/view-transactions"
+@rendermode InteractiveServer
+@using CSE325_Team10_SimpleFinanceTracker.Models
+@using CSE325_Team10_SimpleFinanceTracker.Services
+@using Microsoft.AspNetCore.Components.Forms
+@inject TransactionService TransactionService
+
+<h3>View Transactions</h3>
+
+@if (!TransactionService.Transactions.Any())
+{
+    <p>No transactions added yet.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th>Category</th>
+                <th>Amount</th>
+                <th>Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @for (int i = 0; i < TransactionService.Transactions.Count; i++)
+            {
+                var currentIndex = i;
+                var t = TransactionService.Transactions[currentIndex];
+
+                <tr>
+                    <td>@t.Description</td>
+                    <td>@t.Category</td>
+                    <td>@t.Amount.ToString("C")</td>
+                    <td>@t.Date.ToShortDateString()</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm me-2"
+                                @onclick="() => SelectTransaction(currentIndex)">
+                            Edit
+                        </button>
+
+                        <button class="btn btn-danger btn-sm"
+                                @onclick="() => DeleteTransaction(currentIndex)">
+                            Delete
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (selectedIndex != -1)
+{
+    <hr />
+
+    <h4>Edit Transaction</h4>
+
+    <EditForm Model="@editTransaction"
+              OnValidSubmit="SaveTransaction"
+              FormName="EditTransactionForm">
+
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label class="form-label">Description</label>
+            <InputText class="form-control"
+                       @bind-Value="editTransaction.Description" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Category</label>
+            <InputSelect class="form-control"
+                         @bind-Value="editTransaction.Category">
+                <option value="">-- Select Category --</option>
+                <option value="Income">Income</option>
+                <option value="Expense">Expense</option>
+            </InputSelect>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Amount</label>
+            <InputNumber class="form-control"
+                         @bind-Value="editTransaction.Amount" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Date</label>
+            <InputDate class="form-control"
+                       @bind-Value="editTransaction.Date" />
+        </div>
+
+        <button type="submit" class="btn btn-success me-2">
+            Save Changes
+        </button>
+
+        <button type="button"
+                class="btn btn-secondary"
+                @onclick="CancelEdit">
+            Cancel
+        </button>
+    </EditForm>
+}
+
+@code {
+    private int selectedIndex = -1;
+    private Transaction editTransaction = new();
+
+    private void SelectTransaction(int index)
+    {
+        if (index < 0 || index >= TransactionService.Transactions.Count)
+        {
+            return;
+        }
+
+        selectedIndex = index;
+
+        var transaction = TransactionService.Transactions[index];
+
+        editTransaction = new Transaction
+        {
+            Description = transaction.Description,
+            Category = transaction.Category,
+            Amount = transaction.Amount,
+            Date = transaction.Date
+        };
+
+        StateHasChanged();
+    }
+
+    private void SaveTransaction()
+    {
+        if (selectedIndex >= 0 && selectedIndex < TransactionService.Transactions.Count)
+        {
+            TransactionService.UpdateTransaction(selectedIndex, editTransaction);
+
+            selectedIndex = -1;
+            editTransaction = new Transaction();
+
+            StateHasChanged();
+        }
+    }
+
+    private void CancelEdit()
+    {
+        selectedIndex = -1;
+        editTransaction = new Transaction();
+
+        StateHasChanged();
+    }
+
+    private void DeleteTransaction(int index)
+    {
+        if (index < 0 || index >= TransactionService.Transactions.Count)
+        {
+            return;
+        }
+
+        TransactionService.DeleteTransaction(index);
+
+        if (selectedIndex == index)
+        {
+            CancelEdit();
+        }
+        else if (selectedIndex > index)
+        {
+            selectedIndex--;
+        }
+
+        StateHasChanged();
+    }
+}

@@ -1,0 +1,66 @@
+@page "/add-transaction"
+@rendermode InteractiveServer
+@using CSE325_Team10_SimpleFinanceTracker.Models
+@using CSE325_Team10_SimpleFinanceTracker.Services
+@inject TransactionService TransactionService
+@inject NavigationManager NavigationManager     //navigate to view
+
+<h3>Add Transaction</h3>
+
+<EditForm Model="@transaction" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-2">
+        <label>Description:</label>
+        <InputText @bind-Value="transaction.Description" class="form-control" />
+    </div>
+
+    <div class="mb-2">
+        <label>Category:</label>
+        <InputSelect @bind-Value="transaction.Category" class="form-control">
+            <option value="">-- Select Category --</option>
+            <option value="Income">Income</option>
+            <option value="Expense">Expense</option>
+        </InputSelect>
+    </div>
+
+    <div class="mb-2">
+        <label>Amount:</label>
+        <InputNumber @bind-Value="transaction.Amount" class="form-control" />
+    </div>
+
+    <div class="mb-2">
+        <label>Date:</label>
+        <InputDate @bind-Value="transaction.Date" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Add Transaction</button>
+</EditForm>
+
+@if (!string.IsNullOrEmpty(successMessage))
+{
+    <div class="alert alert-success mt-2">@successMessage</div>
+}
+
+@code {
+    private Transaction transaction = new Transaction();
+    private string successMessage = "";
+
+    private void HandleValidSubmit()
+    {
+        TransactionService.AddTransaction(new Transaction
+        {
+            Description = transaction.Description,
+            Category = transaction.Category,
+            Amount = transaction.Amount,
+            Date = transaction.Date
+        });
+
+        successMessage = "Transaction added successfully!";
+        transaction = new Transaction(); // reset form
+
+        // Navigate to view transactions after adding
+        NavigationManager.NavigateTo("/view-transactions");
+    }
+}

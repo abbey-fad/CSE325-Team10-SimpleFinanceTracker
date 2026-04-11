@@ -1,0 +1,101 @@
+@page "/edit-transaction/{TransactionIndex:int}"
+@using CSE325_Team10_SimpleFinanceTracker.Models
+@using CSE325_Team10_SimpleFinanceTracker.Services
+@inject TransactionService TransactionService
+@inject NavigationManager NavigationManager
+
+<h3>Edit Transaction</h3>
+
+@if (TransactionService.Transactions.Count == 0)
+{
+    <p>No transactions available to edit.</p>
+}
+else if (selectedIndex == -1)
+{
+    <p>Loading transaction...</p>
+}
+else
+{
+    <EditForm Model="@editTransaction" OnValidSubmit="SaveTransaction" FormName="EditTransactionForm">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-2">
+            <label>Description:</label>
+            <InputText class="form-control" @bind-Value="editTransaction.Description" />
+        </div>
+
+        <div class="mb-2">
+            <label>Category:</label>
+            <InputSelect class="form-control" @bind-Value="editTransaction.Category">
+                <option value="">-- Select Category --</option>
+                <option value="Income">Income</option>
+                <option value="Expense">Expense</option>
+            </InputSelect>
+        </div>
+
+        <div class="mb-2">
+            <label>Amount:</label>
+            <InputNumber class="form-control" @bind-Value="editTransaction.Amount" />
+        </div>
+
+        <div class="mb-2">
+            <label>Date:</label>
+            <InputDate class="form-control" @bind-Value="editTransaction.Date" />
+        </div>
+
+        <button type="submit" class="btn btn-success">Save Changes</button>
+        <button type="button" class="btn btn-secondary ms-2" @onclick="CancelEdit">Cancel</button>
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public int TransactionIndex { get; set; }  // URL parameter
+
+    private int selectedIndex = -1;
+    private Transaction editTransaction = new Transaction();
+
+    protected override void OnParametersSet()
+    {
+        if (TransactionIndex >= 0 && TransactionIndex < TransactionService.Transactions.Count)
+        {
+            selectedIndex = TransactionIndex;
+
+            var transaction = TransactionService.Transactions[selectedIndex];
+
+            // Copy transaction to editTransaction
+            editTransaction = new Transaction
+            {
+                Description = transaction.Description,
+                Category = transaction.Category,
+                Amount = transaction.Amount,
+                Date = transaction.Date
+            };
+        }
+        else
+        {
+            selectedIndex = -1;
+        }
+    }
+
+    private void SaveTransaction()
+    {
+        if (selectedIndex >= 0)
+        {
+            TransactionService.UpdateTransaction(selectedIndex, editTransaction);
+
+            // Reset
+            selectedIndex = -1;
+            editTransaction = new Transaction();
+
+            // Go back to ViewTransactions page
+            NavigationManager.NavigateTo("/view-transactions");
+        }
+    }
+
+    private void CancelEdit()
+    {
+        NavigationManager.NavigateTo("/view-transactions");
+    }
+}

@@ -1,0 +1,55 @@
+@page "/login"
+@using CSE325_Team10_SimpleFinanceTracker.Models
+@using CSE325_Team10_SimpleFinanceTracker.Services
+@inject UserService UserService
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+
+<h3>Login</h3>
+
+<form>
+    <div class="mb-2">
+        <label>Email:</label>
+        <input @bind="loginUser.Email" class="form-control" />
+    </div>
+
+    <div class="mb-2">
+        <label>Password:</label>
+        <input @bind="loginUser.Password" type="@PasswordInputType" class="form-control" />
+    </div>
+
+    <div class="mb-2">
+        <input type="checkbox" @bind="ShowPassword" /> Show Password
+    </div>
+
+    <button type="button" class="btn btn-primary mt-2" @onclick="LoginUser">Login</button>
+</form>
+
+@if (!string.IsNullOrEmpty(Message))
+{
+    <p>@Message</p>
+}
+
+@code {
+    private User loginUser = new User();
+    private string Message = "";
+    private bool ShowPassword = false;
+
+    // Determines input type for password field
+    private string PasswordInputType => ShowPassword ? "text" : "password";
+
+    private void LoginUser()
+    {
+        var user = UserService.Login(loginUser.Email, loginUser.Password);
+        if (user != null)
+        {
+            Message = $"Welcome back, {user.Username}!";
+            loginUser = new User(); // reset form
+            NavigationManager.NavigateTo("/"); // redirect to home-dashboard
+        }
+        else
+        {
+            Message = "Invalid email or password.";
+        }
+    }
+}

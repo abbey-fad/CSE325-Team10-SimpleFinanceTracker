@@ -1,0 +1,37 @@
+﻿@page "/"
+@using CSE325_Team10_SimpleFinanceTracker.Services
+@inject UserService UserService
+@inject TransactionService TransactionService
+
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+
+<PageTitle>Home</PageTitle>
+
+<h1>Simple Finance Tracker</h1>
+
+@if (UserService.CurrentUser != null)
+{
+    <p>Welcome back, @UserService.CurrentUser.Username!</p>
+
+    <ul>
+        <li><a href="/add-transaction">Add Transaction</a></li>
+        <li><a href="/view-transactions">View Transactions</a></li>
+        <li><a href="/view-report">View Report</a></li>
+        <li><a href="/view-balance">View Total Balance</a></li>
+        <li><button @onclick="Logout" class="btn btn-secondary mt-2">Logout</button></li>
+    </ul>
+}
+else
+{
+    <p>Welcome to the Simple Finance Tracker app! Please <a href="/login">login</a> or <a href="/register">register</a> to start tracking your finances.</p>
+}
+
+@code {
+    private void Logout()
+    {
+        UserService.Logout();
+        TransactionService.ClearTransactions();
+        NavigationManager.NavigateTo("/login");
+    }
+}

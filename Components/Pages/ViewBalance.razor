@@ -1,0 +1,42 @@
+@page "/view-balance"
+@using CSE325_Team10_SimpleFinanceTracker.Models
+@using CSE325_Team10_SimpleFinanceTracker.Services
+@inject TransactionService TransactionService
+
+<h3>My Total Balance</h3>
+
+@if (!TransactionService.Transactions.Any())
+{
+    <p>No transactions recorded yet.</p>
+}
+else
+{
+    <div class="alert alert-info" role="alert">
+        <strong>Total Balance: </strong> @TotalBalance.ToString("C")
+    </div>
+
+    <div>
+        <p><strong>Total Income:</strong> @IncomeTotal.ToString("C")</p>
+        <p><strong>Total Expenses:</strong> @ExpenseTotal.ToString("C")</p>
+    </div>
+}
+
+@code {
+    private decimal IncomeTotal = 0;
+    private decimal ExpenseTotal = 0;
+    private decimal TotalBalance = 0;
+
+    protected override void OnInitialized()
+    {
+        // Calculate totals
+        IncomeTotal = TransactionService.Transactions
+            .Where(t => t.Category == "Income")
+            .Sum(t => t.Amount);
+
+        ExpenseTotal = TransactionService.Transactions
+            .Where(t => t.Category == "Expense")
+            .Sum(t => t.Amount);
+
+        TotalBalance = IncomeTotal - ExpenseTotal;
+    }
+}
