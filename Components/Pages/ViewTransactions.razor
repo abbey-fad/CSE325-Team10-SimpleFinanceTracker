@@ -33,7 +33,7 @@ else
                 <tr>
                     <td>@t.Description</td>
                     <td>@t.Category</td>
-                    <td>@t.Amount.ToString("C")</td>
+                    <td>@t.Amount.ToString("C", new System.Globalization.CultureInfo("en-US"))</td>
                     <td>@t.Date.ToShortDateString()</td>
                     <td>
                         <button class="btn btn-primary btn-sm me-2"
