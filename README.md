@@ -47,8 +47,7 @@ The application uses a **clean, responsive design**, adheres to accessibility gu
 
 ## **Deployment**
 
-The project is deployed at: [Insert Render/Deployment URL]
-
+The project is deployed at: https://cse325-team10-simplefinancetracker.onrender.com/
 ---
 
 ## **Installation / Running Locally**
@@ -56,5 +55,5 @@ The project is deployed at: [Insert Render/Deployment URL]
 1. Clone the repository:
 
 ```bash
-git clone <your-github-repo-url>
+git clone https://github.com/abbey-fad/CSE325-Team10-SimpleFinanceTracker.git
 cd CSE325-Team10-SimpleFinanceTracker
